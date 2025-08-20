@@ -1,0 +1,17 @@
+# Snapcraft parts directory
+parts/
+
+# Snapcraft try directory
+prime/
+
+# Snapcraft build directory
+stage/
+
+# Snapcraft snap files
+*.snap
+
+# Default unsquashed snap filesystem
+squashfs-root/
+
+# Output files
+.out
