@@ -1,0 +1,42 @@
+name: Publish snap
+description: >
+  Publish snap to the Snap Store, including component parts
+  defined in snap/snapcraft.yaml.
+
+inputs:
+  store-credentials:
+    description: >
+      The Snapcraft store credentials to use
+
+      This parameter is required to publish a snap and
+      its components to snap store.
+    default: ''
+    required: true
+
+runs:
+  using: composite
+  steps:
+    # Requires store crendentials secret set.
+    # Check README.md for steps on how to generate it and use it in workflows.
+    - name: Publish snap
+      shell: bash
+      env:
+        SNAPCRAFT_STORE_CREDENTIALS: ${{ inputs.store-credentials }}
+      run: |
+        if [ -z "$SNAPCRAFT_STORE_CREDENTIALS" ]; then
+          echo "SNAPCRAFT_STORE_CREDENTIALS is not set."
+          exit 1
+        fi
+
+        channel="latest/edge/$(git rev-parse --short HEAD)"
+        echo "Branch name: ${{ github.ref_name }}"
+        echo "Event number: ${{ github.event.number }}"
+
+        if [ -n "${{ github.event.number }}" ]; then
+          echo "Triggered from a PR"
+          channel="latest/edge/pr-${{ github.event.number }}"
+        fi
+
+        echo "Uploading to channel: $channel"
+
+        "${{ github.action_path }}/upload.sh" "$channel"
